@@ -1,6 +1,3 @@
-// This is your Prisma schema file,
-// learn more about it in the docs: https://pris.ly/d/prisma-schema
-
 generator client {
   provider = "prisma-client-js"
 }
@@ -32,7 +29,7 @@ model RefreshToken {
   user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
   expiresAt DateTime
   createdAt DateTime @default(now())
-  
+
   @@map("refresh_tokens")
   @@index([token])
   @@index([userId])
@@ -56,20 +53,20 @@ model Patient {
   emergencyContact String?
   emergencyPhone   String?
   notes           String?         @db.Text
-  
+
   // Relación con cobertura
   coverageId      String?
   coverage        Coverage?       @relation(fields: [coverageId], references: [id])
-  
+
   // Relación con honorarios personalizados
   customFeeId     String?         @unique
   customFee       CustomFee?      @relation(fields: [customFeeId], references: [id])
-  
+
   // Relaciones
   appointments    Appointment[]
   clinicalNotes   ClinicalNote[]
   transactions    Transaction[]
-  
+
   createdAt       DateTime        @default(now())
   updatedAt       DateTime        @updatedAt
 
@@ -82,11 +79,11 @@ model Coverage {
   name        String    @unique
   type        CoverageType
   description String?
-  
+
   // Relaciones
   patients    Patient[]
   fees        Fee[]
-  
+
   createdAt   DateTime  @default(now())
   updatedAt   DateTime  @updatedAt
 
@@ -104,14 +101,14 @@ model Fee {
   id          String    @id @default(uuid())
   amount      Float
   description String?
-  
+
   // Relación con cobertura
   coverageId  String?
   coverage    Coverage? @relation(fields: [coverageId], references: [id])
-  
+
   // Si es global (sin cobertura específica)
   isGlobal    Boolean   @default(false)
-  
+
   createdAt   DateTime  @default(now())
   updatedAt   DateTime  @updatedAt
 
@@ -123,10 +120,10 @@ model CustomFee {
   id          String   @id @default(uuid())
   amount      Float
   description String?
-  
+
   // Relación con paciente
   patient     Patient?
-  
+
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
 
@@ -135,27 +132,30 @@ model CustomFee {
 
 // Modelo de Turno
 model Appointment {
-  id          String          @id @default(uuid())
-  date        DateTime
-  duration    Int             @default(50) // minutos
-  status      AppointmentStatus @default(RESERVED)
-  notes       String?         @db.Text
-  
+  id            String            @id @default(uuid())
+  date          DateTime
+  duration      Int               @default(50) // minutos
+  status        AppointmentStatus @default(RESERVED)
+  notes         String?           @db.Text
+
   // Relación con paciente
-  patientId   String
-  patient     Patient         @relation(fields: [patientId], references: [id], onDelete: Cascade)
-  
+  patientId     String
+  patient       Patient           @relation(fields: [patientId], references: [id], onDelete: Cascade)
+
   // Relación con transacción (si fue facturado)
-  transactionId String?       @unique
-  transaction   Transaction?  @relation(fields: [transactionId], references: [id])
-  
+  transactionId String?           @unique
+  transaction   Transaction?      @relation(fields: [transactionId], references: [id])
+
+  // Relación con nota clínica (nueva)
+  clinicalNote  ClinicalNote?
+
   // Campos para recordatorios
-  reminder24hSent  Boolean     @default(false)
-  reminder1hSent   Boolean     @default(false)
-  reminder50mSent  Boolean     @default(false)
-  
-  createdAt   DateTime        @default(now())
-  updatedAt   DateTime        @updatedAt
+  reminder24hSent Boolean @default(false)
+  reminder1hSent  Boolean @default(false)
+  reminder50mSent Boolean @default(false)
+
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
 
   @@map("appointments")
   @@index([date])
@@ -172,20 +172,20 @@ enum AppointmentStatus {
 
 // Modelo de Nota Clínica (solo visible para psicóloga)
 model ClinicalNote {
-  id          String   @id @default(uuid())
-  content     String   @db.Text
-  date        DateTime @default(now())
-  
+  id            String       @id @default(uuid())
+  content       String       @db.Text
+  date          DateTime     @default(now())
+
   // Relación con paciente
-  patientId   String
-  patient     Patient  @relation(fields: [patientId], references: [id], onDelete: Cascade)
-  
-  // Relación con turno (opcional)
-  appointmentId String? @unique
-  appointment   Appointment?
-  
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
+  patientId     String
+  patient       Patient      @relation(fields: [patientId], references: [id], onDelete: Cascade)
+
+  // Relación con turno (opcional y corregida)
+  appointmentId String?      @unique
+  appointment   Appointment? @relation(fields: [appointmentId], references: [id])
+
+  createdAt     DateTime     @default(now())
+  updatedAt     DateTime     @updatedAt
 
   @@map("clinical_notes")
   @@index([patientId])
@@ -193,22 +193,22 @@ model ClinicalNote {
 
 // Modelo de Transacción / Pago
 model Transaction {
-  id          String          @id @default(uuid())
+  id          String            @id @default(uuid())
   amount      Float
-  date        DateTime        @default(now())
+  date        DateTime          @default(now())
   type        TransactionType
   status      TransactionStatus @default(PENDING)
   description String?
-  
+
   // Relación con paciente
   patientId   String
-  patient     Patient         @relation(fields: [patientId], references: [id], onDelete: Cascade)
-  
+  patient     Patient           @relation(fields: [patientId], references: [id], onDelete: Cascade)
+
   // Relación con turno (si aplica)
   appointment Appointment?
-  
-  createdAt   DateTime        @default(now())
-  updatedAt   DateTime        @updatedAt
+
+  createdAt   DateTime          @default(now())
+  updatedAt   DateTime          @updatedAt
 
   @@map("transactions")
   @@index([patientId])
@@ -226,4 +226,3 @@ enum TransactionStatus {
   COMPLETED     // Completado
   CANCELLED     // Cancelado
 }
-
