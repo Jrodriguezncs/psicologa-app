@@ -4,6 +4,5 @@
   "devCommand": "cd frontend && npm run dev",
   "installCommand": "cd frontend && npm install",
   "framework": "vite",
-  "_comment": "⚠️ IMPORTANTE: Si usas rewrites, actualiza 'destination' con tu URL real de Railway después del deployment. Mejor usar VITE_API_URL en variables de entorno."
-}
+ }
 
