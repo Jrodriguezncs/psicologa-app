@@ -1,0 +1,38 @@
+.stats-row {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 1rem;
+  margin-bottom: 2rem;
+}
+
+.stat-value {
+  font-size: 1.5rem;
+  font-weight: 600;
+  margin-top: 0.5rem;
+}
+
+.stat-value.negative {
+  color: var(--danger);
+}
+
+.stat-value.positive {
+  color: var(--secondary);
+}
+
+.filters {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 1rem;
+  margin-bottom: 1.5rem;
+}
+
+.amount-positive {
+  color: var(--secondary);
+  font-weight: 600;
+}
+
+.amount-negative {
+  color: var(--danger);
+  font-weight: 600;
+}
+

@@ -1,0 +1,29 @@
+.notes-list {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.note-card {
+  border-left: 4px solid var(--primary);
+}
+
+.note-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: start;
+  margin-bottom: 1rem;
+}
+
+.note-date {
+  font-size: 0.875rem;
+  color: var(--gray-600);
+  margin-top: 0.25rem;
+}
+
+.note-content {
+  color: var(--gray-800);
+  line-height: 1.6;
+  white-space: pre-wrap;
+}
+

@@ -1,0 +1,229 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// Modelo de Usuario para autenticación
+model User {
+  id        String   @id @default(uuid())
+  email     String   @unique
+  password  String
+  name      String
+  role      Role     @default(SECRETARY)
+  refreshTokens RefreshToken[]
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@map("users")
+}
+
+// Modelo para Refresh Tokens
+model RefreshToken {
+  id        String   @id @default(uuid())
+  token     String   @unique
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  expiresAt DateTime
+  createdAt DateTime @default(now())
+  
+  @@map("refresh_tokens")
+  @@index([token])
+  @@index([userId])
+}
+
+enum Role {
+  PSYCHOLOGIST
+  SECRETARY
+}
+
+// Modelo de Paciente
+model Patient {
+  id              String          @id @default(uuid())
+  firstName       String
+  lastName        String
+  dni             String?         @unique
+  email           String?
+  phone           String
+  address         String?
+  birthDate       DateTime?
+  emergencyContact String?
+  emergencyPhone   String?
+  notes           String?         @db.Text
+  
+  // Relación con cobertura
+  coverageId      String?
+  coverage        Coverage?       @relation(fields: [coverageId], references: [id])
+  
+  // Relación con honorarios personalizados
+  customFeeId     String?         @unique
+  customFee       CustomFee?      @relation(fields: [customFeeId], references: [id])
+  
+  // Relaciones
+  appointments    Appointment[]
+  clinicalNotes   ClinicalNote[]
+  transactions    Transaction[]
+  
+  createdAt       DateTime        @default(now())
+  updatedAt       DateTime        @updatedAt
+
+  @@map("patients")
+}
+
+// Modelo de Cobertura (Obra Social / Prepaga / Particular)
+model Coverage {
+  id          String    @id @default(uuid())
+  name        String    @unique
+  type        CoverageType
+  description String?
+  
+  // Relaciones
+  patients    Patient[]
+  fees        Fee[]
+  
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+
+  @@map("coverages")
+}
+
+enum CoverageType {
+  SOCIAL_SECURITY    // Obra Social
+  PREPAID            // Prepaga
+  PRIVATE            // Particular
+}
+
+// Modelo de Honorario Global
+model Fee {
+  id          String    @id @default(uuid())
+  amount      Float
+  description String?
+  
+  // Relación con cobertura
+  coverageId  String?
+  coverage    Coverage? @relation(fields: [coverageId], references: [id])
+  
+  // Si es global (sin cobertura específica)
+  isGlobal    Boolean   @default(false)
+  
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+
+  @@map("fees")
+}
+
+// Modelo de Honorario Personalizado por Paciente
+model CustomFee {
+  id          String   @id @default(uuid())
+  amount      Float
+  description String?
+  
+  // Relación con paciente
+  patient     Patient?
+  
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  @@map("custom_fees")
+}
+
+// Modelo de Turno
+model Appointment {
+  id          String          @id @default(uuid())
+  date        DateTime
+  duration    Int             @default(50) // minutos
+  status      AppointmentStatus @default(RESERVED)
+  notes       String?         @db.Text
+  
+  // Relación con paciente
+  patientId   String
+  patient     Patient         @relation(fields: [patientId], references: [id], onDelete: Cascade)
+  
+  // Relación con transacción (si fue facturado)
+  transactionId String?       @unique
+  transaction   Transaction?  @relation(fields: [transactionId], references: [id])
+  
+  // Campos para recordatorios
+  reminder24hSent  Boolean     @default(false)
+  reminder1hSent   Boolean     @default(false)
+  reminder50mSent  Boolean     @default(false)
+  
+  createdAt   DateTime        @default(now())
+  updatedAt   DateTime        @updatedAt
+
+  @@map("appointments")
+  @@index([date])
+  @@index([patientId])
+}
+
+enum AppointmentStatus {
+  RESERVED      // Reservado
+  CONFIRMED     // Confirmado
+  COMPLETED     // Completado
+  CANCELLED     // Cancelado
+  ABSENT        // Ausente
+}
+
+// Modelo de Nota Clínica (solo visible para psicóloga)
+model ClinicalNote {
+  id          String   @id @default(uuid())
+  content     String   @db.Text
+  date        DateTime @default(now())
+  
+  // Relación con paciente
+  patientId   String
+  patient     Patient  @relation(fields: [patientId], references: [id], onDelete: Cascade)
+  
+  // Relación con turno (opcional)
+  appointmentId String? @unique
+  appointment   Appointment?
+  
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  @@map("clinical_notes")
+  @@index([patientId])
+}
+
+// Modelo de Transacción / Pago
+model Transaction {
+  id          String          @id @default(uuid())
+  amount      Float
+  date        DateTime        @default(now())
+  type        TransactionType
+  status      TransactionStatus @default(PENDING)
+  description String?
+  
+  // Relación con paciente
+  patientId   String
+  patient     Patient         @relation(fields: [patientId], references: [id], onDelete: Cascade)
+  
+  // Relación con turno (si aplica)
+  appointment Appointment?
+  
+  createdAt   DateTime        @default(now())
+  updatedAt   DateTime        @updatedAt
+
+  @@map("transactions")
+  @@index([patientId])
+  @@index([date])
+}
+
+enum TransactionType {
+  PAYMENT       // Pago recibido
+  INVOICE       // Factura emitida
+  ADJUSTMENT    // Ajuste
+}
+
+enum TransactionStatus {
+  PENDING       // Pendiente
+  COMPLETED     // Completado
+  CANCELLED     // Cancelado
+}
+
