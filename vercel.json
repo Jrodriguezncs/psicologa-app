@@ -1,8 +1,8 @@
 {
-  "buildCommand": "",
+  "buildCommand": "npm run build",
   "outputDirectory": "dist",
-  "devCommand": "",
-  "installCommand": "",
+  "devCommand": "npm run dev",
+  "installCommand": "npm install",
   "framework": "vite"
  }
 
