@@ -1,7 +1,8 @@
 import axios from 'axios';
 
 // ⚠️ OBLIGAR a que exista la variable de entorno
-const API_URL = import.meta.env.VITE_API_URL;
+const API_URL = 'https://psicologa-app-production.up.railway.app';
+//const API_URL = import.meta.env.VITE_API_URL;
 
 if (!API_URL) {
   throw new Error('VITE_API_URL is not defined');
