@@ -1,12 +1,6 @@
 import axios from 'axios';
 
-// ⚠️ OBLIGAR a que exista la variable de entorno
-const API_URL = 'https://psicologa-app-production.up.railway.app';
-//const API_URL = import.meta.env.VITE_API_URL;
-
-if (!API_URL) {
-  throw new Error('VITE_API_URL is not defined');
-}
+const API_URL = 'https://psicologa-app-production.up.railway.app/api';
 
 // Crear instancia de axios
 const api = axios.create({
@@ -132,6 +126,95 @@ export const appointmentsService = {
 };
 
 /* =========================
+   COVERAGES
+========================= */
+export const coveragesService = {
+  getAll: () =>
+    api.get('/coverages').then(res => res.data),
+
+  getById: (id) =>
+    api.get(`/coverages/${id}`).then(res => res.data),
+
+  create: (data) =>
+    api.post('/coverages', data).then(res => res.data),
+
+  update: (id, data) =>
+    api.put(`/coverages/${id}`, data).then(res => res.data),
+
+  delete: (id) =>
+    api.delete(`/coverages/${id}`).then(res => res.data)
+};
+
+/* =========================
+   FEES
+========================= */
+export const feesService = {
+  getAll: (params) =>
+    api.get('/fees', { params }).then(res => res.data),
+
+  getGlobal: () =>
+    api.get('/fees/global').then(res => res.data),
+
+  getById: (id) =>
+    api.get(`/fees/${id}`).then(res => res.data),
+
+  create: (data) =>
+    api.post('/fees', data).then(res => res.data),
+
+  update: (id, data) =>
+    api.put(`/fees/${id}`, data).then(res => res.data),
+
+  delete: (id) =>
+    api.delete(`/fees/${id}`).then(res => res.data)
+};
+
+/* =========================
+   BILLING
+========================= */
+export const billingService = {
+  getAll: (params) =>
+    api.get('/billing', { params }).then(res => res.data),
+
+  getById: (id) =>
+    api.get(`/billing/${id}`).then(res => res.data),
+
+  create: (data) =>
+    api.post('/billing', data).then(res => res.data),
+
+  update: (id, data) =>
+    api.put(`/billing/${id}`, data).then(res => res.data),
+
+  delete: (id) =>
+    api.delete(`/billing/${id}`).then(res => res.data),
+
+  getPatientBalance: (patientId) =>
+    api.get(`/billing/patient/${patientId}/balance`).then(res => res.data)
+};
+
+/* =========================
+   CLINICAL NOTES
+========================= */
+export const clinicalNotesService = {
+  getAll: (params) =>
+    api.get('/clinical-notes', { params }).then(res => res.data),
+
+  getById: (id) =>
+    api.get(`/clinical-notes/${id}`).then(res => res.data),
+
+  getByPatient: (patientId) =>
+    api.get(`/clinical-notes/patient/${patientId}`).then(res => res.data),
+
+  create: (data) =>
+    api.post('/clinical-notes', data).then(res => res.data),
+
+  update: (id, data) =>
+    api.put(`/clinical-notes/${id}`, data).then(res => res.data),
+
+  delete: (id) =>
+    api.delete(`/clinical-notes/${id}`).then(res => res.data)
+};
+
+/* =========================
    DASHBOARD
 ========================= */
 export const dashboardService = {
@@ -145,4 +228,3 @@ export const dashboardService = {
 };
 
 export default api;
-
