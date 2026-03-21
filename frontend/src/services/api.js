@@ -1,6 +1,6 @@
 import axios from 'axios';
 
-const API_URL = 'https://psicologa-app-production.up.railway.app/api';
+const API_URL = 'https://psicologa-backend-3a3n.onrender.com/api';
 
 // Crear instancia de axios
 const api = axios.create({
