@@ -186,6 +186,9 @@ export const billingService = {
 
   delete: (id) =>
     api.delete(`/billing/${id}`).then(res => res.data),
+  
+  getPendingTransactions: (limit) =>
+  api.get('/billing', { params: { status: 'PENDING', limit } }).then(res => res.data),
 
   getPatientBalance: (patientId) =>
     api.get(`/billing/patient/${patientId}/balance`).then(res => res.data)
